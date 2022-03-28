@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 @RestController
@@ -55,6 +57,7 @@ public class UserController {
 //            }
 //        }
 
+
     // (url/ endpoint) DELETE http://localhost:4001/api/user/firstpage
 
     @GetMapping("/firstpage")
@@ -66,6 +69,8 @@ public class UserController {
             ResponseEntity<UserModel[]>firstPage = restTemplate.getForEntity(url, UserModel[].class);
 
             UserModel[] firstPageUser = firstPage.getBody();
+
+
 
             System.out.println("meow");
             for(int i =0; i< firstPageUser.length; i++){
@@ -163,16 +168,15 @@ public Object getPage(RestTemplate restTemplate,
         try {
 
             String url = "https://gorest.co.in/public/v2/users/" + userId;
-            String apiToken= env.getProperty("GOREST_TOKEN");
+            String apiToken = env.getProperty("GOREST_TOKEN");
             // quary parameter part
             url += "?access-token=" + apiToken;
 
             return restTemplet.getForObject(url, Object.class);
 
 
-
-
 //            return restTemplet.getForObject(url, Object.class);
+
 
         }catch(Exception exception){
             return "404: No user Exists with that ID: " + userId;
@@ -322,7 +326,95 @@ public Object getPage(RestTemplate restTemplate,
         }
     }
 
+    @PutMapping("/")
+    public ResponseEntity putUser(
+            RestTemplate restTemplate,
+            @RequestBody UserModel updateData
+    ){
+        try{
+
+            String url = "http://gorest.co.in/public/v2/users/" + updateData.getId();
+            String token = env.getProperty("GOREST_TOKEN");
+            url += "?access-token=" + token;
+
+            HttpEntity<UserModel> request = new HttpEntity<>(updateData);
+
+            ResponseEntity<UserModel> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    request,
+                    UserModel.class
+            );
+
+            return new ResponseEntity(response.getBody(), HttpStatus.OK);
+
+
+        }catch (HttpClientErrorException.UnprocessableEntity e) {
+
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+
+
+        }catch (Exception e){
+            System.out.println(e.getClass() + "\n"+ e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+    }
+//------------------------------------------------------------------------------------------
+    // partner assignment get all users and display them in one page oppose to multiple pages
+    // top of the page get up
+//@RestController
+//@RequestMapping("/api/user")
+//public class UserController {
+//    @Autowired
+//    Environment env;
+//
+
+    @GetMapping("/all")
+    public ResponseEntity getAll(RestTemplate restTemplate){
+        try{
+            ArrayList<UserModel> allUsers = new ArrayList<>();
+            String url= "http://gorest.co.in/public/v2/users";
+
+            // instance of user model array
+            ResponseEntity<UserModel[]> response = restTemplate.getForEntity(url, UserModel[].class);
+
+            allUsers.addAll(Arrays.asList(Objects.requireNonNull(response.getBody())));
+
+            int totalPageNumber = 4; // Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("X-pagination-Pages")).get(0));
+            // we are going through all the pages
+
+            for (int i = 2 ; i<= totalPageNumber;i++){
+                String tempUrl = url + "?page=" +i;
+                UserModel[] pageData = restTemplate.getForObject(tempUrl, UserModel[].class);
+                // allUsers.addALLL(array.aslist(pageData));
+                allUsers.addAll(Arrays.asList(Objects.requireNonNull(pageData)));
+
+
+            }
+            //Could not extract response: no suitable HttpMessageConverter found for response type [class [Lcom.careerdevs.gorestv1.models.UserModel;] and content type [text/html]
+
+
+            return new ResponseEntity(allUsers, HttpStatus.OK);
+
+
+
+        }
+        catch (Exception e){
+            System.out.println(e.getClass());
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+
+
+        }
+
+    }
 
 
 
 }
+
+
+// response entity retrieves both the body and the status codes and heathers
+// main difference between object and entity
