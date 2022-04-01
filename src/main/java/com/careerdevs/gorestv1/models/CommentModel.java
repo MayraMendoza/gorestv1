@@ -13,11 +13,12 @@ public class CommentModel {
     //will recognize Post_id in json data and store it in post id
     @JsonProperty("post_id")
     private int postId;
+
     private String name;
     private String email;
     private String body;
 
-// dont delete, keep your default constructor just in case.
+// don't delete, keep your default constructor just in case.
     public CommentModel() {
     }
 
@@ -25,7 +26,7 @@ public class CommentModel {
         return id;
     }
 
-    public int getPosId() {
+    public int getPostId() {
         return postId;
     }
 
@@ -39,5 +40,16 @@ public class CommentModel {
 
     public String getBody() {
         return body;
+    }
+
+    @Override
+    public String toString() {
+        return "CommentModel{" +
+                "id=" + id +
+                ", postId=" + postId +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", body='" + body + '\'' +
+                '}';
     }
 }

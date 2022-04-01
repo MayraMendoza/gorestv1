@@ -23,12 +23,14 @@ public class CommentController {
     @GetMapping ("/firstpage")
     public CommentModel[] getFirstPage(RestTemplate restTemplate){
         String url = "https://gorest.co.in/public/v2/comments/";
+        //
         return restTemplate.getForObject(url, CommentModel[].class);
 
     }
     // getting a single comment by id
     //no array just simple instance
-    @GetMapping ("{id}")
+    // path variable controls id
+    @GetMapping ("/{id}")
     public ResponseEntity getOneComment (RestTemplate restTemplate, @PathVariable("id") int CommentId){
         try{
         String url = "https://gorest.co.in/public/v2/comments/" + CommentId;
@@ -43,11 +45,11 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteOneComment (RestTemplate restTemplate, @PathVariable("id") int CommentId) {
+    public ResponseEntity<Object> deleteOneComment (RestTemplate restTemplate, @PathVariable("id") int CommentId) {
         try{
             String url = "https://gorest.co.in/public/v2/comments/" + CommentId;
-            String token = env.getProperty("GOREST_TOKEN");
-            url += "?access-token" +token;
+            String token =  env.getProperty("GOREST_TOKEN");
+            url += "?access-token=" +token;
 
             CommentModel deletedComment = restTemplate.getForObject(url, CommentModel.class);
             restTemplate.delete(url);
@@ -60,7 +62,7 @@ public class CommentController {
         }
 
     }
-
+// you can omit / -
     @PostMapping
     public ResponseEntity<Object> postComment (
             RestTemplate restTemplate,
@@ -69,7 +71,7 @@ public class CommentController {
         try {
             String url = "https://gorest.co.in/public/v2/comments/";
             String token = env.getProperty("GOREST_TOKEN");
-            url += "?access-token" + token;
+            url += "?access-token=" + token;
             HttpEntity<CommentModel> request = new HttpEntity<>(newComment);
 
             CommentModel createdComment = restTemplate.postForObject(url, request,CommentModel.class);
@@ -95,6 +97,7 @@ public class CommentController {
 
         HttpEntity<CommentModel> request = new HttpEntity<>(updatedComment);
 
+        // we can do exchange or a put method.
         ResponseEntity<CommentModel> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,

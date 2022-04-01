@@ -234,34 +234,34 @@ public class UserController {
 
         }
     }
-// three ways path variables, request param & request body
-//    @PostMapping ("/")
-//    public Object postUser(
-//            @RequestParam ("name") String name,
-//            @RequestParam ("email") String email,
-//            @RequestParam ("gender") String gender,
-//            @RequestParam ("status") String status,
-//            RestTemplate restTemplate
+ //three ways path variables, request param & request body
+    @PostMapping ("/")
+    public Object postUser(
+            @RequestParam ("name") String name,
+            @RequestParam ("email") String email,
+            @RequestParam ("gender") String gender,
+            @RequestParam ("status") String status,
+            RestTemplate restTemplate
+
+    ) {
+        try {
+            String url = "https://gorest.co.in/public/v2/users/";
+            String token = env.getProperty("GOREST_TOKEN");
+            url += "?access-token=" + token;
+            UserModel newUser = new UserModel(name, email, gender, status);
+//            HttpHeaders headers = new HttpHeaders();
 //
-//    ) {
-//        try {
-//            String url = "http://gorest.co.in/public/v2/users/";
-//            String token = env.getProperty("GOREST_TOKEN");
-//            url += "?access-token=" + token;
-//            UserModel newUser = new UserModel(name, email, gender, status);
-////            HttpHeaders headers = new HttpHeaders();
-////
-////            headers.setBearerAuth(token);
-//            HttpEntity<UserModel> request = new HttpEntity<>(newUser);
-//
-//            return  restTemplate.postForEntity(url, request, UserModel.class);
-//
-//        } catch (Exception exception) {
-//            System.out.println(exception.getClass());
-//            return exception.getMessage();
-//
-//        }
-//    }
+//            headers.setBearerAuth(token);
+            HttpEntity<UserModel> request = new HttpEntity<>(newUser);
+
+            return  restTemplate.postForEntity(url, request, UserModel.class);
+
+        } catch (Exception exception) {
+            System.out.println(exception.getClass());
+            return exception.getMessage();
+
+        }
+    }
 
     @PostMapping("/qp")
     public Object postUserQueryParam(
@@ -293,7 +293,7 @@ public class UserController {
     }
 
     //
-    @PostMapping("/")
+    @PostMapping("/a")
     public ResponseEntity postUser(
             RestTemplate restTemplate,
             @RequestBody UserModel newUser
