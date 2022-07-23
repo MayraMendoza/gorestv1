@@ -20,6 +20,7 @@ public class UserController {
     @Autowired
     Environment env;
 
+    //
     // URL/ endpoint -> http://localhost:4001/api/user/token
     @GetMapping("/token")
     public String token() {
@@ -29,7 +30,7 @@ public class UserController {
     // GET http://localhost:4001/api/user/{id}
     //-------------------MANUAL WAY --------------------------
 //    @GetMapping("/{id}")
-//    public Object getOneUser (
+//    public Object getOneUserManual (
 //            @PathVariable("id") String userId,
 //            RestTemplate restTemplet) {
 //        try {
@@ -53,7 +54,7 @@ public class UserController {
 ////            return restTemplet.getForObject(url, Object.class);
 //
 //        }catch(Exception exception){
-//                return "404: No user Exists with that ID: " + userId;
+//                return "404: No user Exists with the ID: " + userId;
 //            }
 //        }
 
@@ -148,7 +149,7 @@ public class UserController {
 
     }
 
-
+// example 1: simple getMapping by id - token is not necessary.
     // GET http://localhost:4001/api/user/{id}
     @GetMapping("/{id}")
     public Object getOneUser(
@@ -157,9 +158,9 @@ public class UserController {
         try {
 
             String url = "https://gorest.co.in/public/v2/users/" + userId;
-            String apiToken = env.getProperty("GOREST_TOKEN");
-            // quary parameter part
-            url += "?access-token=" + apiToken;
+//            String apiToken = env.getProperty("GOREST_TOKEN");
+//            // quary parameter part
+//            url += "?access-token=" + apiToken;
 
             return restTemplet.getForObject(url, Object.class);
 
@@ -235,34 +236,35 @@ public class UserController {
         }
     }
  //three ways path variables, request param & request body
-    @PostMapping ("/")
-    public Object postUser(
-            @RequestParam ("name") String name,
-            @RequestParam ("email") String email,
-            @RequestParam ("gender") String gender,
-            @RequestParam ("status") String status,
-            RestTemplate restTemplate
-
-    ) {
-        try {
-            String url = "https://gorest.co.in/public/v2/users/";
-            String token = env.getProperty("GOREST_TOKEN");
-            url += "?access-token=" + token;
-            UserModel newUser = new UserModel(name, email, gender, status);
-//            HttpHeaders headers = new HttpHeaders();
+//    @PostMapping ("/")
+//    public Object postUser(
+//            @RequestParam ("name") String name,
+//            @RequestParam ("email") String email,
+//            @RequestParam ("gender") String gender,
+//            @RequestParam ("status") String status,
+//            RestTemplate restTemplate
 //
-//            headers.setBearerAuth(token);
-            HttpEntity<UserModel> request = new HttpEntity<>(newUser);
+//    ) {
+//        try {
+//            String url = "https://gorest.co.in/public/v2/users/";
+//            String token = env.getProperty("GOREST_TOKEN");
+//            url += "?access-token=" + token;
+//            UserModel newUser = new UserModel(name, email, gender, status);
+////            HttpHeaders headers = new HttpHeaders();
+////
+////            headers.setBearerAuth(token);
+//            HttpEntity<UserModel> request = new HttpEntity<>(newUser);
+//
+//            return  restTemplate.postForEntity(url, request, UserModel.class);
+//
+//        } catch (Exception exception) {
+//            System.out.println(exception.getClass());
+//            return exception.getMessage();
+//
+//        }
+//    }
 
-            return  restTemplate.postForEntity(url, request, UserModel.class);
-
-        } catch (Exception exception) {
-            System.out.println(exception.getClass());
-            return exception.getMessage();
-
-        }
-    }
-
+    //post user query param
     @PostMapping("/qp")
     public Object postUserQueryParam(
             @RequestParam("name") String name,
@@ -292,8 +294,8 @@ public class UserController {
         }
     }
 
-    //
-    @PostMapping("/a")
+    //post a user
+    @PostMapping("/")
     public ResponseEntity postUser(
             RestTemplate restTemplate,
             @RequestBody UserModel newUser
@@ -301,9 +303,9 @@ public class UserController {
         try {
             String url = "https://gorest.co.in/public/v2/users/";
             String token = env.getProperty("GOREST_TOKEN");
-            url += "?access-token" + token;
+            url += "?access-token=" + token;
 
-            HttpEntity<UserModel> request = new HttpEntity<UserModel>(newUser);
+            HttpEntity<UserModel> request = new HttpEntity<>(newUser);
 
 
             return restTemplate.postForEntity(url, request, UserModel.class);
@@ -316,7 +318,21 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+//    @PostMapping("/")
+//    public ResponseEntity postUser(
+//            RestTemplate restTemplate,
+//            @RequestBody UserModel newUser) {
+//
+//        String url = "https://gorest.co.in/public/v2/users/";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setBasicAuth("640b92322772b544c91b13e11b180ac3e24157879f6da64af338e07ba655fd17");
+//
+//        HttpEntity<UserModel> request = new HttpEntity<UserModel>(newUser);
+//        return restTemplate.postForEntity(url, request, UserModel.class);
+//
+//    }
 
+    // block
     @PutMapping("/")
     public ResponseEntity putUser(
             RestTemplate restTemplate,
@@ -373,7 +389,7 @@ public class UserController {
 
             allUsers.addAll(Arrays.asList(Objects.requireNonNull(response.getBody())));
 
-            int totalPageNumber = 4; // Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("X-pagination-Pages")).get(0));
+            int totalPageNumber = 100; // Integer.parseInt(Objects.requireNonNull(response.getHeaders().get("X-pagination-Pages")).get(0));
             // we are going through all the pages
 
             for (int i = 2; i <= totalPageNumber; i++) {
